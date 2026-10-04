@@ -6,6 +6,10 @@ Enabling this plugin replaces the stock `omarchy.workspaces` widget. Removing it
 
 Names are labels for the bar. Hyprland still addresses each workspace by its number.
 
+## Example
+
+![The bar with named workspaces on the left](example.png)
+
 ## Install
 
 ```bash
