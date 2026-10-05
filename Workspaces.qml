@@ -21,6 +21,9 @@ BarWidget {
   property string namesBlob: ""
   property bool namesLoaded: false
   property bool dirReady: false
+  // Skip the initial focusedWorkspace bind so shell reload does not toast.
+  property bool workspaceToastArmed: false
+  property int lastToastedWorkspaceId: 0
   property int editorLeft: 0
   property int editorTop: 0
   property var editorScreen: null
@@ -92,6 +95,26 @@ BarWidget {
 
   function numberLabel(id) {
     return id === 10 ? "0" : String(id)
+  }
+
+  function toastLabel(id) {
+    var name = nameFor(id)
+    var num = numberLabel(id)
+    return name ? (num + " · " + name) : num
+  }
+
+  function showWorkspaceChangeToast(id) {
+    var numeric = parseInt(id, 10)
+    if (!isFinite(numeric) || numeric < 1 || numeric > 10) return
+    // One toast per focus change even if multiple bar instances load this widget.
+    var items = instances()
+    if (items.length > 0 && items[0] !== root) return
+    if (numeric === lastToastedWorkspaceId) return
+    lastToastedWorkspaceId = numeric
+    Quickshell.execDetached([
+      "omarchy-shell", "-q", "osd", "show",
+      JSON.stringify({ icon: "󰍹", message: toastLabel(numeric), duration: 1500 })
+    ])
   }
 
   function indexGlyph(id, focused, named) {
@@ -179,7 +202,24 @@ BarWidget {
     console.log("linuxbox.workspaces names " + namesBlob.replace(/\n/g, " "))
   }
 
-  Component.onCompleted: console.log("linuxbox.workspaces live")
+  Component.onCompleted: {
+    console.log("linuxbox.workspaces live")
+    Qt.callLater(function() {
+      var ws = Hyprland.focusedWorkspace
+      if (ws) root.lastToastedWorkspaceId = ws.id
+      root.workspaceToastArmed = true
+    })
+  }
+
+  Connections {
+    target: Hyprland
+    function onFocusedWorkspaceChanged() {
+      if (!root.workspaceToastArmed) return
+      var ws = Hyprland.focusedWorkspace
+      if (!ws) return
+      root.showWorkspaceChangeToast(ws.id)
+    }
+  }
 
   function setName(id, raw) {
     if (!namesLoaded) return false
