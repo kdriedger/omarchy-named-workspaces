@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "linuxbox.workspaces",
   "name": "Named workspaces",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "linuxbox",
   "license": "MIT",
   "description": "Name each Hyprland workspace from the bar. The current workspace uses the theme accent.",

@@ -39,6 +39,16 @@ omarchy plugin remove linuxbox.workspaces --yes
 
 None. The plugin is QML loaded by the Omarchy shell. It does not install packages, change Hyprland config, or request extra privileges.
 
+## Changelog
+
+### 1.1.0
+
+- Show an Omarchy OSD toast with the workspace number and name when you switch workspaces (1.5 s, replaces the previous one).
+
+### 1.0.0
+
+- First release.
+
 ## License
 
 [MIT](LICENSE)
