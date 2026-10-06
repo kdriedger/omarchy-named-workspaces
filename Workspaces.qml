@@ -211,14 +211,19 @@ BarWidget {
     })
   }
 
-  Connections {
-    target: Hyprland
-    function onFocusedWorkspaceChanged() {
-      if (!root.workspaceToastArmed) return
-      var ws = Hyprland.focusedWorkspace
-      if (!ws) return
-      root.showWorkspaceChangeToast(ws.id)
+  // Hyprland.focusedWorkspace is a Qt bindable property. Mirror its id through
+  // a plain QML binding (the same thing the chips' "focused" highlight uses) so
+  // the change handler follows every focus change.
+  readonly property int focusedWorkspaceId: Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0
+  onFocusedWorkspaceIdChanged: {
+    if (!root.workspaceToastArmed || root.focusedWorkspaceId < 1) return
+    // Hyprland can report the first focused workspace after the widget arms
+    // (fresh shell start); record it silently so startup does not toast.
+    if (root.lastToastedWorkspaceId < 1) {
+      root.lastToastedWorkspaceId = root.focusedWorkspaceId
+      return
     }
+    root.showWorkspaceChangeToast(root.focusedWorkspaceId)
   }
 
   function setName(id, raw) {
